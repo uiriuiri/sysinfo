@@ -1,0 +1,48 @@
+.TH SYSINFO 1 "November 2026" "sysinfo 0.1" "User Commands"
+
+.SH NAME
+sysinfo \- display system information
+
+.SH SYNOPSIS
+.B sysinfo
+[\fB-s\fR]
+
+.SH DESCRIPTION
+.B sysinfo
+displays information about the current Linux system.
+
+By default, it displays detailed system information.
+
+.SH OPTIONS
+.TP
+.BR -s ", " --short
+Display a simplified version with distribution, CPU model and total RAM.
+
+.TP
+.BR -h ", " --help
+Display help information.
+
+.SH INFORMATION
+The full output includes:
+.IP \(bu 2
+Linux distribution
+.IP \(bu 2
+Operating system
+.IP \(bu 2
+Hostname
+.IP \(bu 2
+CPU model and logical cores
+.IP \(bu 2
+Total, used and available RAM
+
+.SH EXAMPLES
+.TP
+.B sysinfo
+Display complete system information.
+
+.TP
+.B sysinfo -s
+Display simplified system information.
+
+.SH AUTHOR
+uiriuiri

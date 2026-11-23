@@ -2,30 +2,121 @@
 
 import platform
 import os
+import random
+import argparse
 
+FACES = [
+    r"¯\_(ツ)_/¯",
+    "ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧",
+    "(˶>⩊<˶)",
+    "(ᵕ—ᴗ—)",
+    "( ◡̀  ̫ ◡́) ✧",
+    "૮(◞ ‸ ◟ )ა",
+    "(⸝⸝๑﹏๑⸝⸝)",
+    "(¬`‸´¬)"
+    "〜(꒪꒳꒪)〜"
+    ".·°՞(っ-ᯅ-ς)՞°·."
+    "₍^ >⩊< ^₎Ⳋ"
+    "(╯˙ᵕ˙ )╯︵ ┻━┻"
+    "(｡•̀ ⤙ •́ ｡ꐦ)"
+]
 
 def get_distro():
     if os.path.exists("/etc/os-release"):
         with open("/etc/os-release", "r") as file:
             for line in file:
                 if line.startswith("PRETTY_NAME="):
-                    return line.split("=")[1].strip().strip('"')
+                    return line.split("=", 1)[1].strip().strip('"')
 
     return "Unknown"
 
 
-def get_system_info():
-    print("==========================")
-    print("        SYSINFO")
-    print("==========================")
+def get_cpu_info():
+    model = "Unknown"
 
-    print("Distribution:", get_distro())
-    print("System:", platform.system())
-    print("Release:", platform.release())
-    print("Version:", platform.version())
-    print("Machine:", platform.machine())
-    print("Hostname:", platform.node())
+    if os.path.exists("/proc/cpuinfo"):
+        with open("/proc/cpuinfo", "r") as file:
+            for line in file:
+                if line.startswith("model name"):
+                    model = line.split(":", 1)[1].strip()
+                    break
+
+    cores = os.cpu_count()
+
+    return model, cores
+
+
+def get_short_cpu_name(full_model):
+    for prefix in ["i3-", "i5-", "i7-", "i9-"]:
+        if prefix in full_model:
+            return prefix + full_model.split(prefix, 1)[1].split()[0]
+
+    return full_model
+
+
+def get_ram_info():
+    meminfo = {}
+
+    with open("/proc/meminfo", "r") as file:
+        for line in file:
+            key, value = line.split(":", 1)
+            meminfo[key] = int(value.strip().split()[0])
+
+    total = meminfo["MemTotal"]
+    available = meminfo["MemAvailable"]
+    used = total - available
+
+    # Convertir de KB a GB
+    total = round(total / 1024 / 1024, 2)
+    used = round(used / 1024 / 1024, 2)
+    available = round(available / 1024 / 1024, 2)
+
+    return total, used, available
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="System information tool"
+    )
+
+    parser.add_argument(
+        "-s", "--short",
+        action="store_true",
+        help="Show short system information"
+    )
+
+    return parser.parse_args()
+
+
+def get_system_info(short=False):
+    cpu_model, cpu_cores = get_cpu_info()
+    ram_total, ram_used, ram_available = get_ram_info()
+
+    print("")
+    print("       " + random.choice(FACES))
+    print("")
+
+    print("distro:", get_distro())
+
+    if not short:
+        print("sys:", platform.system())
+        print("host:", platform.node())
+
+    if short:
+        cpu_model = get_short_cpu_name(cpu_model)
+
+    print("cpu:", cpu_model)
+
+    if not short:
+        print("cores:", cpu_cores)
+
+    print("ram:", ram_total, "GB")
+
+    if not short:
+        print("used:", ram_used, "GB")
+        print("available:", ram_available, "GB")
 
 
 if __name__ == "__main__":
-    get_system_info()
+    args = parse_arguments()
+    get_system_info(short=args.short)
