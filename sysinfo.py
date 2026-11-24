@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 
 import platform
@@ -119,15 +118,13 @@ def get_system_info(short=False):
     if not short:
         print("cores:", cpu_cores)
 
+    # RAM utilitzada / total
     if ram_total is not None:
-        print("ram:", ram_total, "GB")
-
-        if not short:
-            print("used:", ram_used, "GB")
-            print("available:", ram_available, "GB")
+        print(f"ram: {ram_used}/{ram_total} GB")
     else:
         print("ram: unavailable")
-        
+
+
 if __name__ == "__main__":
     args = parse_arguments()
     get_system_info(short=args.short)
