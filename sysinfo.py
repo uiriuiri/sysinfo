@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 
 import platform
@@ -6,20 +7,21 @@ import random
 import argparse
 
 FACES = [
-    r"¯\_(ツ)_/¯",
+    "¯*\\_*(ツ)_/¯",
     "ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧",
     "(˶>⩊<˶)",
     "(ᵕ—ᴗ—)",
     "( ◡̀  ̫ ◡́) ✧",
     "૮(◞ ‸ ◟ )ა",
     "(⸝⸝๑﹏๑⸝⸝)",
-    "(¬`‸´¬)"
-    "〜(꒪꒳꒪)〜"
-    ".·°՞(っ-ᯅ-ς)՞°·."
-    "₍^ >⩊< ^₎Ⳋ"
-    "(╯˙ᵕ˙ )╯︵ ┻━┻"
+    "(¬`‸´¬)",
+    "〜(꒪꒳꒪)〜",
+    ".·°՞(っ-ᯅ-ς)՞°·.",
+    "₍^ >⩊< ^₎Ⳋ",
+    "(╯˙ᵕ˙ )╯︵ ┻━┻",
     "(｡•̀ ⤙ •́ ｡ꐦ)"
 ]
+
 
 def get_distro():
     if os.path.exists("/etc/os-release"):
@@ -28,7 +30,7 @@ def get_distro():
                 if line.startswith("PRETTY_NAME="):
                     return line.split("=", 1)[1].strip().strip('"')
 
-    return "Unknown"
+    return platform.system()
 
 
 def get_cpu_info():
@@ -41,20 +43,27 @@ def get_cpu_info():
                     model = line.split(":", 1)[1].strip()
                     break
 
-    cores = os.cpu_count()
+    cores = os.cpu_count() or 0
 
     return model, cores
 
 
 def get_short_cpu_name(full_model):
-    for prefix in ["i3-", "i5-", "i7-", "i9-"]:
-        if prefix in full_model:
-            return prefix + full_model.split(prefix, 1)[1].split()[0]
+    if "Intel" in full_model:
+        for prefix in ["i3-", "i5-", "i7-", "i9-"]:
+            if prefix in full_model:
+                return prefix + full_model.split(prefix, 1)[1].split()[0]
+
+    if "Ryzen" in full_model:
+        return "Ryzen " + full_model.split("Ryzen ", 1)[1].split()[0]
 
     return full_model
 
 
 def get_ram_info():
+    if not os.path.exists("/proc/meminfo"):
+        return None, None, None
+
     meminfo = {}
 
     with open("/proc/meminfo", "r") as file:
@@ -92,9 +101,9 @@ def get_system_info(short=False):
     cpu_model, cpu_cores = get_cpu_info()
     ram_total, ram_used, ram_available = get_ram_info()
 
-    print("")
+    print()
     print("       " + random.choice(FACES))
-    print("")
+    print()
 
     print("distro:", get_distro())
 
@@ -110,13 +119,15 @@ def get_system_info(short=False):
     if not short:
         print("cores:", cpu_cores)
 
-    print("ram:", ram_total, "GB")
+    if ram_total is not None:
+        print("ram:", ram_total, "GB")
 
-    if not short:
-        print("used:", ram_used, "GB")
-        print("available:", ram_available, "GB")
-
-
+        if not short:
+            print("used:", ram_used, "GB")
+            print("available:", ram_available, "GB")
+    else:
+        print("ram: unavailable")
+        
 if __name__ == "__main__":
     args = parse_arguments()
     get_system_info(short=args.short)
